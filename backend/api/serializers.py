@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import Category, Product, Sale
 
 class CategorySerializer(serializers.ModelSerializer):
-    """Serializer for category objects."""
     
     class Meta:
         model = Category
@@ -10,7 +9,6 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 class ProductSerializer(serializers.ModelSerializer):
-    """Serializer for product objects."""
     
     category_name = serializers.ReadOnlyField(source='category.name')
     is_low_stock = serializers.BooleanField(read_only=True)
@@ -24,7 +22,6 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 class ProductListSerializer(ProductSerializer):
-    """Serializer for listing product objects with optimized fields."""
     
     class Meta(ProductSerializer.Meta):
         fields = [
@@ -33,7 +30,6 @@ class ProductListSerializer(ProductSerializer):
         ]
 
 class SaleSerializer(serializers.ModelSerializer):
-    """Serializer for sale objects."""
     
     product_name = serializers.ReadOnlyField(source='product.name')
     created_by_username = serializers.ReadOnlyField(source='created_by.username')
@@ -47,7 +43,7 @@ class SaleSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'total_price', 'created_by']
     
     def validate(self, attrs):
-        """Validate that there is enough stock for the sale."""
+        # Validating that there is enough stock for the sale
         product = attrs['product']
         quantity = attrs['quantity']
         
@@ -59,7 +55,6 @@ class SaleSerializer(serializers.ModelSerializer):
         return attrs
     
     def create(self, validated_data):
-        """Create a new sale and set the created_by field."""
         validated_data['created_by'] = self.context['request'].user
         validated_data['unit_price'] = validated_data['product'].price
         return super().create(validated_data)

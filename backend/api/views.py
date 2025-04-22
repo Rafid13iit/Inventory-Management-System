@@ -12,7 +12,6 @@ from .serializers import (
 from .permissions import IsAdminUser, IsAdminOrReadOnly
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    """ViewSet for viewing and editing category instances."""
     
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -22,7 +21,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     ordering_fields = ['name', 'created_at']
 
 class ProductViewSet(viewsets.ModelViewSet):
-    """ViewSet for viewing and editing product instances."""
     
     queryset = Product.objects.all()
     permission_classes = [IsAdminOrReadOnly]
@@ -32,14 +30,14 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering_fields = ['name', 'price', 'quantity', 'created_at']
     
     def get_serializer_class(self):
-        """Return appropriate serializer class based on action."""
+        # Returning appropriate serializer class based on action
         if self.action == 'list':
             return ProductListSerializer
         return ProductSerializer
     
     @action(detail=False, methods=['get'])
     def low_stock(self, request):
-        """List products with low stock."""
+        # Listing products with low stock
         products = self.get_queryset().filter(quantity__lte=5)
         page = self.paginate_queryset(products)
         
@@ -52,7 +50,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def update_stock(self, request, pk=None):
-        """Update product stock quantity."""
+        # Updating product stock quantity
         product = self.get_object()
         
         # Check if user is admin
@@ -84,7 +82,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 class SaleViewSet(viewsets.ModelViewSet):
-    """ViewSet for viewing and editing sale instances."""
     
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer

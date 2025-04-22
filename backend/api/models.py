@@ -3,7 +3,6 @@ from django.conf import settings
 from django.utils import timezone
 
 class Category(models.Model):
-    """Model representing product categories."""
     
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
@@ -18,7 +17,6 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
-    """Model representing inventory products."""
     
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
@@ -37,12 +35,10 @@ class Product(models.Model):
     
     @property
     def is_low_stock(self):
-        """Check if the product is low in stock."""
         threshold = getattr(settings, 'STOCK_THRESHOLD', 5)
         return self.quantity <= threshold
 
 class Sale(models.Model):
-    """Model representing sales transactions."""
     
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sales')
     quantity = models.PositiveIntegerField()
@@ -55,12 +51,10 @@ class Sale(models.Model):
         return f"Sale of {self.product.name} - {self.quantity} units"
     
     def save(self, *args, **kwargs):
-        """Override save method to update product quantity and calculate total price."""
         if not self.pk:  # Only reduce stock on creation, not on updates
             self.product.quantity -= self.quantity
             self.product.save()
         
-        # Calculate total price
         self.total_price = self.quantity * self.unit_price
         
         super().save(*args, **kwargs)
