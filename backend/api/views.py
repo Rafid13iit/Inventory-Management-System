@@ -10,6 +10,9 @@ from .serializers import (
     SaleSerializer,
 )
 from .permissions import IsAdminUser, IsAdminOrReadOnly
+from django.conf import settings
+import django_filters
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     
@@ -20,12 +23,28 @@ class CategoryViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'created_at']
 
+
+class ProductFilter(django_filters.FilterSet):
+    is_low_stock = django_filters.BooleanFilter(method='filter_is_low_stock')
+    
+    class Meta:
+        model = Product
+        fields = ['category', 'is_low_stock']
+    
+    def filter_is_low_stock(self, queryset, name, value):
+        threshold = getattr(settings, 'STOCK_THRESHOLD', 5)
+        if value:  # If is_low_stock=True
+            return queryset.filter(quantity__lte=threshold)
+        else:  # If is_low_stock=False
+            return queryset.filter(quantity__gt=threshold)
+
 class ProductViewSet(viewsets.ModelViewSet):
     
     queryset = Product.objects.all()
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'is_low_stock']
+    # filterset_fields = ['category', 'is_low_stock']
+    filterset_class = ProductFilter  # Using the custom filter class instead of filterset_fields
     search_fields = ['name', 'description', 'category__name']
     ordering_fields = ['name', 'price', 'quantity', 'created_at']
     
