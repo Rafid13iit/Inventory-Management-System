@@ -1,3 +1,4 @@
+# Learn Django WITH FULL EXPLANATION
 # Inventory Management System BACKEND
 
 A Django REST Framework backend for an Inventory Management System that allows users to manage products, categories, stock levels, and sales.

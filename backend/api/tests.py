@@ -1,73 +1,86 @@
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
-from django.contrib.auth import get_user_model
-from .models import Category, Product, Sale
-from decimal import Decimal
+from django.test import TestCase  # Importing Django's built-in TestCase class for writing unit tests.
+from django.urls import reverse  # reverse() is used to generate URLs by reversing the URL patterns defined in the project.
+from rest_framework import status  # Importing HTTP status codes for better readability in test assertions.
+from rest_framework.test import APIClient  # APIClient is used for simulating HTTP requests in tests.
+from django.contrib.auth import get_user_model  # get_user_model() dynamically retrieves the user model defined in the project.
+from .models import Category, Product, Sale  # Importing models from the current app for testing.
+from decimal import Decimal  # Decimal is used for precise decimal arithmetic, especially for financial data.
 
+# Dynamically fetch the user model defined in the project (useful if a custom user model is used).
 User = get_user_model()
 
 class CategoryTests(TestCase):
     """Test the category API."""
 
     def setUp(self):
-        self.client = APIClient()
-        # Create admin user
+        # setUp() is a special method that runs before each test method to set up any state needed for the tests.
+        self.client = APIClient()  # Initialize the APIClient for making HTTP requests in tests.
+
+        # Create an admin user for testing admin-specific functionality.
         self.admin_user = User.objects.create_user(
-            username='admin',
-            email='admin@example.com',
-            password='testpass123',
-            role='ADMIN'
+            username='admin',  # Username for the admin user.
+            email='admin@example.com',  # Email for the admin user.
+            password='testpass123',  # Password for the admin user.
+            role='ADMIN'  # Custom role field (assumes the User model has a 'role' field).
         )
-        # Create regular user
+
+        # Create a regular user for testing non-admin functionality.
         self.user = User.objects.create_user(
-            username='user',
-            email='user@example.com',
-            password='testpass123',
-            role='USER'
+            username='user',  # Username for the regular user.
+            email='user@example.com',  # Email for the regular user.
+            password='testpass123',  # Password for the regular user.
+            role='USER'  # Custom role field.
         )
         
-        # Create test category
+        # Create a test category for testing category-related functionality.
         self.category = Category.objects.create(
-            name='Test Category',
-            description='Test description'
+            name='Test Category',  # Name of the category.
+            description='Test description'  # Description of the category.
         )
         
-        self.category_url = reverse('category-list')
-        self.category_detail_url = reverse('category-detail', args=[self.category.id])
+        # Generate the URL for the category list endpoint using reverse().
+        self.category_url = reverse('category-list')  # Assumes a URL pattern named 'category-list'.
+        # Generate the URL for the category detail endpoint using reverse().
+        self.category_detail_url = reverse('category-detail', args=[self.category.id])  # Assumes a URL pattern named 'category-detail'.
 
     def test_list_categories_authenticated(self):
         """Test that authenticated users can list categories."""
-        self.client.force_authenticate(user=self.user)
-        res = self.client.get(self.category_url)
+        self.client.force_authenticate(user=self.user)  # Authenticate the client as the regular user.
+        res = self.client.get(self.category_url)  # Make a GET request to the category list endpoint.
         
+        # Assert that the response status code is 200 (OK).
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # Assert that the response contains exactly one category.
         self.assertEqual(len(res.data['results']), 1)
+        # Assert that the name of the category in the response matches the test category.
         self.assertEqual(res.data['results'][0]['name'], self.category.name)
 
     def test_create_category_admin(self):
         """Test that admin users can create categories."""
-        self.client.force_authenticate(user=self.admin_user)
+        self.client.force_authenticate(user=self.admin_user)  # Authenticate the client as the admin user.
         payload = {
-            'name': 'New Category',
-            'description': 'New description'
+            'name': 'New Category',  # Name of the new category.
+            'description': 'New description'  # Description of the new category.
         }
-        res = self.client.post(self.category_url, payload)
+        res = self.client.post(self.category_url, payload)  # Make a POST request to create a new category.
         
+        # Assert that the response status code is 201 (Created).
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        # Assert that the total number of categories in the database is now 2.
         self.assertEqual(Category.objects.count(), 2)
         
     def test_create_category_user_fails(self):
         """Test that regular users cannot create categories."""
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=self.user)  # Authenticate the client as the regular user.
         payload = {
-            'name': 'New Category',
-            'description': 'New description'
+            'name': 'New Category',  # Name of the new category.
+            'description': 'New description'  # Description of the new category.
         }
-        res = self.client.post(self.category_url, payload)
+        res = self.client.post(self.category_url, payload)  # Make a POST request to create a new category.
         
+        # Assert that the response status code is 403 (Forbidden).
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        # Assert that the total number of categories in the database remains 1.
         self.assertEqual(Category.objects.count(), 1)
 
 class ProductTests(TestCase):
