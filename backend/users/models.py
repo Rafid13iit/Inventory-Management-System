@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
-    """Custom user model that extends Django's AbstractUser."""
-    
     class Role(models.TextChoices):
         ADMIN = 'ADMIN', _('Admin')
         USER = 'USER', _('User')

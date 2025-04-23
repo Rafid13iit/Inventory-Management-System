@@ -75,6 +75,12 @@ A Django REST Framework backend for an Inventory Management System that allows u
 
    The API will be available at `http://localhost:8000/api/`
 
+
+## Database Diagram
+
+![Database Schema](./docs/db_diagram.svg)
+
+
 ## API Endpoints
 
 ### Authentication
@@ -117,6 +123,7 @@ Run the tests using:
 ```bash
 python manage.py test
 ```
+
 
 ## Tech Stack
 
