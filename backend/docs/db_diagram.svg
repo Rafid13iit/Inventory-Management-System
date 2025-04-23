@@ -1,0 +1,83 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="800" height="600" fill="#f5f5f5"/>
+    
+    <!-- Title -->
+    <text x="400" y="30" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle">Inventory Management System - Database Schema</text>
+    
+    <!-- CustomUser Table -->
+    <rect x="50" y="70" width="200" height="160" fill="#e1f5fe" stroke="#0277bd" stroke-width="2" rx="5"/>
+    <text x="150" y="90" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">CustomUser</text>
+    <line x1="50" y1="100" x2="250" y2="100" stroke="#0277bd" stroke-width="2"/>
+    
+    <text x="60" y="120" font-family="Arial" font-size="12">id (PK)</text>
+    <text x="60" y="140" font-family="Arial" font-size="12">username</text>
+    <text x="60" y="160" font-family="Arial" font-size="12">email</text>
+    <text x="60" y="180" font-family="Arial" font-size="12">password</text>
+    <text x="60" y="200" font-family="Arial" font-size="12">role (ADMIN/USER)</text>
+    <text x="60" y="220" font-family="Arial" font-size="12">date_joined</text>
+    
+    <!-- Category Table -->
+    <rect x="300" y="70" width="200" height="120" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" rx="5"/>
+    <text x="400" y="90" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Category</text>
+    <line x1="300" y1="100" x2="500" y2="100" stroke="#2e7d32" stroke-width="2"/>
+    
+    <text x="310" y="120" font-family="Arial" font-size="12">id (PK)</text>
+    <text x="310" y="140" font-family="Arial" font-size="12">name</text>
+    <text x="310" y="160" font-family="Arial" font-size="12">description</text>
+    <text x="310" y="180" font-family="Arial" font-size="12">created_at/updated_at</text>
+    
+    <!-- Product Table -->
+    <rect x="300" y="240" width="200" height="180" fill="#fff3e0" stroke="#e65100" stroke-width="2" rx="5"/>
+    <text x="400" y="260" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Product</text>
+    <line x1="300" y1="270" x2="500" y2="270" stroke="#e65100" stroke-width="2"/>
+    
+    <text x="310" y="290" font-family="Arial" font-size="12">id (PK)</text>
+    <text x="310" y="310" font-family="Arial" font-size="12">name</text>
+    <text x="310" y="330" font-family="Arial" font-size="12">category_id (FK)</text>
+    <text x="310" y="350" font-family="Arial" font-size="12">price</text>
+    <text x="310" y="370" font-family="Arial" font-size="12">quantity</text>
+    <text x="310" y="390" font-family="Arial" font-size="12">description</text>
+    <text x="310" y="410" font-family="Arial" font-size="12">created_at/updated_at</text>
+    
+    <!-- Sale Table -->
+    <rect x="550" y="240" width="200" height="160" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2" rx="5"/>
+    <text x="650" y="260" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Sale</text>
+    <line x1="550" y1="270" x2="750" y2="270" stroke="#6a1b9a" stroke-width="2"/>
+    
+    <text x="560" y="290" font-family="Arial" font-size="12">id (PK)</text>
+    <text x="560" y="310" font-family="Arial" font-size="12">product_id (FK)</text>
+    <text x="560" y="330" font-family="Arial" font-size="12">quantity</text>
+    <text x="560" y="350" font-family="Arial" font-size="12">unit_price</text>
+    <text x="560" y="370" font-family="Arial" font-size="12">total_price</text>
+    <text x="560" y="390" font-family="Arial" font-size="12">sale_date</text>
+    <text x="560" y="410" font-family="Arial" font-size="12">created_by (FK)</text>
+    
+    <!-- Relationships -->
+    <!-- Category to Product -->
+    <path d="M 400 190 L 400 240" stroke="#2e7d32" stroke-width="2" fill="none"/>
+    <circle cx="400" cy="190" r="5" fill="#2e7d32"/>
+    <polygon points="395,240 405,240 400,250" fill="#2e7d32"/>
+    
+    <!-- Product to Sale -->
+    <path d="M 500 330 L 550 330" stroke="#e65100" stroke-width="2" fill="none"/>
+    <circle cx="500" cy="330" r="5" fill="#e65100"/>
+    <polygon points="540,325 550,330 540,335" fill="#e65100"/>
+    
+    <!-- User to Sale -->
+    <path d="M 150 230 L 150 450 L 550 450 L 550 410" stroke="#0277bd" stroke-width="2" fill="none"/>
+    <circle cx="150" cy="230" r="5" fill="#0277bd"/>
+    <polygon points="545,410 555,410 550,400" fill="#0277bd"/>
+    
+    <!-- Legend -->
+    <rect x="50" y="500" width="700" height="80" fill="white" stroke="gray" stroke-width="1" rx="5"/>
+    <text x="400" y="520" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">Legend</text>
+    
+    <circle cx="80" cy="540" r="5" fill="#0277bd"/>
+    <text x="90" y="545" font-family="Arial" font-size="12">One-to-Many Relationship</text>
+    
+    <text x="90" y="565" font-family="Arial" font-size="12">PK = Primary Key, FK = Foreign Key</text>
+    
+    <text x="350" y="545" font-family="Arial" font-size="12">User roles: ADMIN can perform all operations, USER can only view</text>
+    <text x="350" y="565" font-family="Arial" font-size="12">Low stock notification when product quantity ≤ 5</text>
+</svg>
