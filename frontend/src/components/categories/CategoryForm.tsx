@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { categorySchema } from '../../utils/validators';
+import * as yup from 'yup';
 import { CategoryFormData } from '../../types/category.types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+
+// Define the schema using yup
+const categorySchema = yup.object().shape({
+  name: yup.string().required('Category name is required'),
+  description: yup.string().required('Description is required'),
+});
 
 interface CategoryFormProps {
   initialData?: CategoryFormData;

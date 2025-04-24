@@ -2,12 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Category } from '../../types/category.types';
 import Card from '../ui/Card';
-import { formatShortDate } from '../../utils/formatters';
 import Button from '../ui/Button';
 
 interface CategoryItemProps {
   category: Category;
-  onDelete: (id: number) => void;
+  onDelete?: () => void;
   isDeleting?: boolean;
 }
 
@@ -16,6 +15,12 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
   onDelete,
   isDeleting = false,
 }) => {
+  // Format created_at date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   return (
     <Card>
       <div className="flex justify-between items-start">
@@ -25,7 +30,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
             {category.description || 'No description provided'}
           </p>
           <p className="mt-2 text-xs text-gray-500">
-            Created: {formatShortDate(category.created_at)}
+            Created: {formatDate(category.created_at)}
           </p>
         </div>
         <div className="flex space-x-2">
@@ -34,15 +39,17 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
               Edit
             </Button>
           </Link>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => onDelete(category.id)}
-            isLoading={isDeleting}
-            disabled={isDeleting}
-          >
-            Delete
-          </Button>
+          {onDelete && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={onDelete}
+              isLoading={isDeleting}
+              disabled={isDeleting}
+            >
+              Delete
+            </Button>
+          )}
         </div>
       </div>
     </Card>

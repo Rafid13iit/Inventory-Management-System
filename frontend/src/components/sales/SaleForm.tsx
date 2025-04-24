@@ -32,7 +32,8 @@ const SaleForm: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getProducts();
+        // Fix: Add required parameters to getProducts call
+        const response = await getProducts(1, '', 'name', '', '');
         setProducts(response.results);
         setLoading(false);
       } catch (error) {

@@ -1,177 +1,167 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { productSchema } from '../../utils/validators';
+import * as yup from 'yup';
 import { ProductFormData } from '../../types/product.types';
 import { Category } from '../../types/category.types';
-import { getCategories } from '../../api/categoryApi';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import Button from '../ui/Button';
 import SelectInput from '../ui/SelectInput';
-import LoadingSpinner from '../ui/LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 interface ProductFormProps {
-  initialData?: Partial<ProductFormData>;
-  onSubmit: (data: ProductFormData) => Promise<void>;
-  isLoading?: boolean;
+  onSubmit: (data: ProductFormData) => void;
+  categories: Category[];
+  isSubmitting: boolean;
+  initialData?: ProductFormData;
+  imageUrl?: string;
 }
 
+const schema = yup.object().shape({
+  name: yup.string().required('Name is required'),
+  category: yup.number().required('Category is required'),
+  price: yup.number().positive('Price must be positive').required('Price is required'),
+  quantity: yup.number().integer('Quantity must be an integer').min(0, 'Quantity cannot be negative').required('Quantity is required'),
+  description: yup.string().required('Description is required'),
+  image: yup.mixed().notRequired(),
+});
+
 const ProductForm: React.FC<ProductFormProps> = ({
-  initialData = { name: '', category: 0, price: 0, quantity: 0, description: '' },
   onSubmit,
-  isLoading = false,
+  categories,
+  isSubmitting,
+  initialData,
+  imageUrl,
 }) => {
-  const [error, setError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(imageUrl || null);
   
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<ProductFormData>({
-    resolver: yupResolver(productSchema),
-    defaultValues: initialData,
+  const { register, handleSubmit, formState: { errors } } = useForm<ProductFormData>({
+    resolver: yupResolver(schema) as any,
+    defaultValues: initialData || {
+      name: '',
+      category: categories.length > 0 ? categories[0].id : 0,
+      price: 0,
+      quantity: 0,
+      description: '',
+      image: null,
+    },
   });
-  
-  const watchImage = watch('image');
-  
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await getCategories();
-        setCategories(response.results);
-      } catch (err) {
-        setError('Failed to load categories');
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-    
-    fetchCategories();
-  }, []);
-  
-  useEffect(() => {
-    if (watchImage && watchImage[0]) {
-      const file = watchImage[0];
-      const fileUrl = URL.createObjectURL(file);
-      setPreviewUrl(fileUrl);
-      setValue('image', file);
-      
-      return () => {
-        URL.revokeObjectURL(fileUrl);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
       };
-    }
-  }, [watchImage, setValue]);
-  
-  const handleFormSubmit = async (data: ProductFormData) => {
-    setError(null);
-    try {
-      await onSubmit(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save product. Please try again.');
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(imageUrl || null);
     }
   };
-  
-  if (loadingCategories) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-  
+
+  const submitForm = (data: ProductFormData) => {
+    // Handle file from input
+    const fileInput = document.getElementById('image') as HTMLInputElement;
+    if (fileInput?.files?.length) {
+      data.image = fileInput.files[0];
+    }
+    
+    onSubmit(data);
+  };
+
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 text-red-800 p-3 rounded border border-red-200">
-          {error}
+    <form onSubmit={handleSubmit(submitForm as SubmitHandler<ProductFormData>)} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Input
+            label="Product Name"
+            {...register('name')}
+            error={errors.name?.message}
+            placeholder="Enter product name"
+          />
         </div>
-      )}
-      
-      <Input
-        label="Product Name"
-        error={errors.name?.message}
-        {...register('name')}
-      />
-      
-      <SelectInput
-        label="Category"
-        options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
-        error={errors.category?.message}
-        {...register('category')}
-      />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Price"
-          type="number"
-          step="0.01"
-          error={errors.price?.message}
-          {...register('price')}
-        />
         
-        <Input
-          label="Quantity"
-          type="number"
-          error={errors.quantity?.message}
-          {...register('quantity')}
-        />
+        <div>
+          <SelectInput
+            label="Category"
+            {...register('category')}
+            options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
+            error={errors.category?.message}
+          />
+        </div>
+        
+        <div>
+          <Input
+            label="Price"
+            type="number"
+            step="0.01"
+            {...register('price')}
+            error={errors.price?.message}
+            placeholder="0.00"
+          />
+        </div>
+        
+        <div>
+          <Input
+            label="Quantity"
+            type="number"
+            {...register('quantity')}
+            error={errors.quantity?.message}
+            placeholder="0"
+          />
+        </div>
       </div>
       
-      <div className="space-y-2">
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Description
         </label>
         <textarea
-          id="description"
-          rows={4}
-          className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${
-            errors.description ? 'border-red-300' : ''
-          }`}
           {...register('description')}
-        />
+          rows={4}
+          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter product description"
+        ></textarea>
         {errors.description && (
           <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
         )}
       </div>
       
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Product Image
         </label>
         <input
+          id="image"
           type="file"
           accept="image/*"
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100"
-          {...register('image')}
+          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          onChange={handleImageChange}
         />
         {errors.image && (
-          <p className="mt-1 text-sm text-red-600">{errors.image.message}</p>
+          <p className="mt-1 text-sm text-red-600">{errors.image.message as string}</p>
         )}
         
-        {previewUrl && (
+        {previewImage && (
           <div className="mt-2">
-            <img
-              src={previewUrl}
-              alt="Product preview"
-              className="h-32 w-32 object-cover rounded border border-gray-200"
+            <img 
+              src={previewImage} 
+              alt="Product preview" 
+              className="h-32 w-auto object-contain border rounded"
             />
           </div>
         )}
       </div>
       
-      <div className="pt-2">
-        <Button
-          type="submit"
-          variant="primary"
-          isLoading={isLoading}
-          disabled={isLoading}
-          className="w-full sm:w-auto"
-        >
-          {initialData.name ? 'Update Product' : 'Create Product'}
+      <div className="flex justify-end space-x-3">
+        <Link to="/products">
+          <Button variant="secondary" type="button">
+            Cancel
+          </Button>
+        </Link>
+        <Button type="submit" isLoading={isSubmitting}>
+          {initialData ? 'Update Product' : 'Create Product'}
         </Button>
       </div>
     </form>
