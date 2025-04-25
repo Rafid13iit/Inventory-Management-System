@@ -1,13 +1,14 @@
 // src/pages/dashboard/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import Card from '../../components/ui/Card';
-import { Product } from '../../types/product.types';
+import { Product, ProductListItem } from '../../types/product.types';
 import { getProducts, getLowStockProducts } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
 import { getSales } from '../../api/saleApi';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Link } from 'react-router-dom';
+import { PaginatedResponse } from '../../types/api.types';
 
 const Dashboard: React.FC = () => {
   const { state } = useAuth();
@@ -17,7 +18,7 @@ const Dashboard: React.FC = () => {
     totalProducts: 0,
     totalCategories: 0,
     totalSales: 0,
-    lowStockProducts: [] as Product[],
+    lowStockProducts: [] as ProductListItem[],  // Change this to ProductListItem[]
   });
 
   useEffect(() => {
@@ -28,7 +29,12 @@ const Dashboard: React.FC = () => {
           getProducts(),
           getCategories(),
           getLowStockProducts(),
-          user?.role === 'ADMIN' ? getSales() : Promise.resolve({ results: [], count: 0 }),
+          user?.role === 'ADMIN' ? getSales() : Promise.resolve({
+            results: [],
+            count: 0,
+            next: null,
+            previous: null
+          } as PaginatedResponse<any>),
         ]);
 
         setStats({

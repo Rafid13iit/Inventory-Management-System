@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { saleSchema } from '../../utils/validators';
 import { SaleFormData } from '../../types/sale.types';
-import { Product } from '../../types/product.types';
+import { ProductListItem } from '../../types/product.types';
 import { getProducts } from '../../api/productApi';
 import { createSale } from '../../api/saleApi';
 import Button from '../ui/Button';
@@ -17,9 +17,9 @@ const SaleForm: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductListItem[]>([]); // Changed from Product[] to ProductListItem[]
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductListItem | null>(null);
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SaleFormData>({
     resolver: yupResolver(saleSchema),
@@ -32,7 +32,6 @@ const SaleForm: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Fix: Add required parameters to getProducts call
         const response = await getProducts(1, '', 'name', '', '');
         setProducts(response.results);
         setLoading(false);

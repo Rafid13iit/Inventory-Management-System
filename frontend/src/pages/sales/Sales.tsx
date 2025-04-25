@@ -2,18 +2,17 @@ import React, { useState, useEffect } from 'react';
 import SaleList from '../../components/sales/SaleList';
 import Card from '../../components/ui/Card';
 import { getProducts } from '../../api/productApi';
-import { Product } from '../../types/product.types';
+import { ProductListItem } from '../../types/product.types'; // Changed from Product
 import SelectInput from '../../components/ui/SelectInput';
 
 const Sales: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductListItem[]>([]); // Changed from Product[] to ProductListItem[]
   const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Fix: Add required parameters to getProducts call
         const response = await getProducts(1, '', 'name', '', '');
         setProducts(response.results);
         setLoading(false);

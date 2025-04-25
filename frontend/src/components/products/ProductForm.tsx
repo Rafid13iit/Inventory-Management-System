@@ -71,7 +71,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(submitForm as SubmitHandler<ProductFormData>)} className="space-y-6">
+    <form onSubmit={handleSubmit(submitForm)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Input

@@ -70,7 +70,7 @@ export const updateStock = async (id: number, quantity: number): Promise<Product
   return response.data;
 };
 
-export const getLowStockProducts = async (): Promise<ProductListItem[]> => {
-  const response = await axiosInstance.get<ProductListItem[]>('/products/low_stock/');
+export const getLowStockProducts = async (): Promise<PaginatedResponse<ProductListItem>> => {
+  const response = await axiosInstance.get<PaginatedResponse<ProductListItem>>('/products/low_stock/');
   return response.data;
 };
