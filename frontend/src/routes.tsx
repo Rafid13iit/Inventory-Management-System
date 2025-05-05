@@ -1,3 +1,4 @@
+// routes.tsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
@@ -32,55 +33,38 @@ interface ProtectedRouteProps {
   requiredRole?: 'ADMIN' | 'USER';
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   element, 
   requiredRole 
 }) => {
   const { state } = useAuth();
   const { isAuthenticated, user, isLoading } = state;
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to="/" replace />;
-  }
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (requiredRole && user?.role !== requiredRole) return <Navigate to="/" replace />;
 
   return <>{element}</>;
 };
 
-// Define routes
-export const routes = [
+export const getRoutes = () => [
   {
     path: '/',
     element: <MainLayout />,
     children: [
-      { path: '/', element: <Dashboard /> },
-      { path: '/products', element: <Products /> },
-      { path: '/products/create', element: <ProductCreate /> },
-      { path: '/products/:id/edit', element: <ProductEdit /> },
-      { path: '/categories', element: <Categories /> },
-      { path: '/categories/create', element: <CategoryCreate /> },
-      { path: '/categories/:id/edit', element: <CategoryEdit /> },
-      { path: '/sales', element: <Sales />, requiredRole: 'ADMIN' },
-      { path: '/sales/create', element: <SaleCreate />, requiredRole: 'ADMIN' },
+      { index: true, element: <ProtectedRoute element={<Dashboard />} /> },
+      { path: 'products', element: <ProtectedRoute element={<Products />} /> },
+      { path: 'products/create', element: <ProtectedRoute element={<ProductCreate />} /> },
+      { path: 'products/:id/edit', element: <ProtectedRoute element={<ProductEdit />} /> },
+      { path: 'categories', element: <ProtectedRoute element={<Categories />} /> },
+      { path: 'categories/create', element: <ProtectedRoute element={<CategoryCreate />} /> },
+      { path: 'categories/:id/edit', element: <ProtectedRoute element={<CategoryEdit />} /> },
+      { path: 'sales', element: <ProtectedRoute element={<Sales />} requiredRole="ADMIN" /> },
+      { path: 'sales/create', element: <ProtectedRoute element={<SaleCreate />} requiredRole="ADMIN" /> },
     ],
   },
-  {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: '/register',
-    element: <Register />,
-  },
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
-  },
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
+  { path: '*', element: <Navigate to="/" replace /> },
 ];
