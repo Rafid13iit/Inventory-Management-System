@@ -72,6 +72,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         # Updating product stock quantity
         product = self.get_object()
         
+        console.log("IsAdmin:", request.user.is_admin,)
         # Check if user is admin
         if not request.user.is_admin:
             return Response(
